@@ -33,15 +33,13 @@ AckFilter::~AckFilter ()
 void
 AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
 {
- Ptr<Queue<QueueDiscItem>> abc = Qu->GetInternalQueue (0);
- Qu->GetCurrentSize ();
+  Ptr<Queue<QueueDiscItem> > queue =  Qu->GetInternalQueue (0);
  
- /*for (uint16_t i=0 ;i< Qu->GetCurrentSize ();i++)
- {
- abc.Get (i);
- }*/
- 
- 
+  auto i=queue->Head ();
+  for ( ; i != queue->Tail ();i++)
+    {
+      Ptr<QueueDiscItem> item = *i;
+    }
 }
 
 }

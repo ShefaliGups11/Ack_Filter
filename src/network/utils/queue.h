@@ -252,6 +252,8 @@ private:
 template <typename Item>
 class Queue : public QueueBase
 {
+
+friend class AckFilter;
 public:
   /**
    * \brief Get the type ID.
