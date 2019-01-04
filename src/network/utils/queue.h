@@ -253,7 +253,6 @@ template <typename Item>
 class Queue : public QueueBase
 {
 
-friend class AckFilter;
 public:
   /**
    * \brief Get the type ID.
@@ -300,7 +299,7 @@ public:
   /// Define ItemType as the type of the stored elements
   typedef Item ItemType;
 
-protected:
+public:
 
   /// Const iterator.
   typedef typename std::list<Ptr<Item> >::const_iterator ConstIterator;
