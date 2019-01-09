@@ -106,7 +106,20 @@ Ipv4QueueDiscItem::GetUint8Value (QueueItem::Uint8Values field, uint8_t& value) 
       value = m_header.GetTos ();
       ret = true;
       break;
-    }
+     case TCP_FLAGS:
+     uint8_t prot = m_header.GetProtocol ();
+      if (prot == 6)
+      {
+        TcpHeader tcpHdr;
+        GetPacket ()->PeekHeader (tcpHdr);
+        value = tcpHdr.GetFlags ();
+        ret = true;
+       }
+       else
+       {
+        ret = false;
+       }
+     }
 
   return ret;
 }
