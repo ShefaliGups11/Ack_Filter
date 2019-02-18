@@ -7,9 +7,11 @@
 namespace ns3 {
 
 class Ipv4QueueDiscItem;
-template <typename Item> class Queue;
+template <typename Item>
+class Queue;
 
-class AckFilter : public Object {
+class AckFilter : public Object
+{
 public:
   /**
    * \brief Get the type ID.
@@ -23,13 +25,13 @@ public:
    * \return the object TypeId
    */
 //  static TypeId GetTypeId (void);
-  /**
-   * \brief AckFilter constructor
-   */
-AckFilter ();
+/**
+ * \brief AckFilter constructor
+ */
+  AckFilter ();
 
-virtual ~AckFilter ();
-virtual void AckFilterMain (Ptr<QueueDisc> queue);
+  virtual ~AckFilter ();
+  virtual void AckFilterMain (Ptr<QueueDisc> queue);
 
 };
 
