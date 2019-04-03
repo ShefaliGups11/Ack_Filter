@@ -24,6 +24,9 @@
 #include "ns3/simple-ref-count.h"
 #include <ns3/address.h>
 #include "ns3/nstime.h"
+#include "ns3/tcp-header.h"
+#include "ns3/udp-header.h"
+
 
 namespace ns3 {
 
@@ -51,6 +54,8 @@ public:
    * \param p the packet included in the created item.
    */
   QueueItem (Ptr<Packet> p);
+
+  virtual SequenceNumber32  GetxyzHeader (void);  
 
   virtual ~QueueItem ();
 

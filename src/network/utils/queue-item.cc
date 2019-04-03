@@ -21,6 +21,7 @@
 #include "queue-item.h"
 #include "ns3/packet.h"
 #include "ns3/log.h"
+#include "ns3/tcp-header.h"
 
 namespace ns3 {
 
@@ -52,6 +53,13 @@ QueueItem::GetSize (void) const
   NS_ASSERT (m_packet != 0);
   return m_packet->GetSize ();
 }
+
+SequenceNumber32
+QueueItem::GetxyzHeader (void)
+{
+  return SequenceNumber32 (0);
+}
+
 
 bool
 QueueItem::GetUint8Value (QueueItem::Uint8Values field, uint8_t& value) const

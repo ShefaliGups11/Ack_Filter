@@ -57,6 +57,14 @@ Ipv4QueueDiscItem::GetHeader (void) const
   return m_header;
 }
 
+SequenceNumber32
+Ipv4QueueDiscItem::GetxyzHeader (void)
+{
+  TcpHeader tcpHdr;
+  GetPacket ()->PeekHeader (tcpHdr);
+  return tcpHdr.GetAckNumber ();
+}
+
 void Ipv4QueueDiscItem::AddHeader (void)
 {
   NS_LOG_FUNCTION (this);

@@ -59,6 +59,9 @@ public:
   /**
    * \brief Add the header to the packet
    */
+
+  SequenceNumber32 GetxyzHeader (void);  
+
   virtual void AddHeader (void);
 
   /**

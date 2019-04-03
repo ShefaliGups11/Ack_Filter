@@ -64,6 +64,9 @@ AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
           continue;
         }
       Ptr<QueueDiscItem> item = *check;
+      SequenceNumber32 abc = (*check)->GetxyzHeader();
+      std::cout <<abc;
+
     }
 }
 
