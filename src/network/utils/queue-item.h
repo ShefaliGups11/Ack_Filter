@@ -109,6 +109,13 @@ public:
   virtual uint16_t TcpSourcePort (void);
   
   virtual uint16_t TcpDestinationPort (void);
+  
+  
+  typedef std::pair<SequenceNumber32, SequenceNumber32> SackBlock; //!< SACK block definition
+  typedef std::list<SackBlock> SackList;                           //!< SACK list definition
+  
+  virtual SackList TcpGetSackList (void);
+  virtual void TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr);
 
 private:
   /**

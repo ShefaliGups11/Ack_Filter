@@ -71,7 +71,7 @@ QueueItem::GetUint8Value (QueueItem::Uint8Values field, uint8_t& value) const
 void
 QueueItem::Print (std::ostream& os) const
 {
-  os << GetPacket();
+  os << GetPacket ();
 }
 
 std::ostream & operator << (std::ostream &os, const QueueItem &item)
@@ -80,16 +80,29 @@ std::ostream & operator << (std::ostream &os, const QueueItem &item)
   return os;
 }
 
-uint16_t 
+uint16_t
 QueueItem::TcpSourcePort (void)
 {
-return 0;
+  return 0;
 }
 
 uint16_t
 QueueItem::TcpDestinationPort (void)
 {
-return 0;
+  return 0;
+}
+
+QueueItem::SackList
+QueueItem::TcpGetSackList (void)
+{
+  QueueItem::SackList sack;
+  return sack;
+}
+
+void
+QueueItem::TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr)
+{
+
 }
 
 QueueDiscItem::QueueDiscItem (Ptr<Packet> p, const Address& addr, uint16_t protocol)
@@ -101,7 +114,7 @@ QueueDiscItem::QueueDiscItem (Ptr<Packet> p, const Address& addr, uint16_t proto
   NS_LOG_FUNCTION (this << p << addr << protocol);
 }
 
-QueueDiscItem::~QueueDiscItem()
+QueueDiscItem::~QueueDiscItem ()
 {
   NS_LOG_FUNCTION (this);
 }
@@ -152,9 +165,9 @@ void
 QueueDiscItem::Print (std::ostream& os) const
 {
   os << GetPacket () << " "
-     << "Dst addr " << m_address << " "
-     << "proto " << (uint16_t) m_protocol << " "
-     << "txq " << (uint8_t) m_txq
+  << "Dst addr " << m_address << " "
+  << "proto " << (uint16_t) m_protocol << " "
+  << "txq " << (uint8_t) m_txq
   ;
 }
 

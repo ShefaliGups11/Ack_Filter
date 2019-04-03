@@ -114,20 +114,20 @@ Ipv4QueueDiscItem::GetUint8Value (QueueItem::Uint8Values field, uint8_t& value) 
       value = m_header.GetTos ();
       ret = true;
       break;
-     case TCP_FLAGS:
-     uint8_t prot = m_header.GetProtocol ();
+    case TCP_FLAGS:
+      uint8_t prot = m_header.GetProtocol ();
       if (prot == 6)
-      {
-        TcpHeader tcpHdr;
-        GetPacket ()->PeekHeader (tcpHdr);
-        value = tcpHdr.GetFlags ();
-        ret = true;
-       }
-       else
-       {
-        ret = false;
-       }
-     }
+        {
+          TcpHeader tcpHdr;
+          GetPacket ()->PeekHeader (tcpHdr);
+          value = tcpHdr.GetFlags ();
+          ret = true;
+        }
+      else
+        {
+          ret = false;
+        }
+    }
 
   return ret;
 }
@@ -187,21 +187,40 @@ Ipv4QueueDiscItem::Hash (uint32_t perturbation) const
   return hash;
 }
 
-uint16_t 
+uint16_t
 Ipv4QueueDiscItem::TcpSourcePort (void)
 {
- TcpHeader tcpHdr;
- GetPacket ()->PeekHeader (tcpHdr);
- return tcpHdr.GetSourcePort ();
+  TcpHeader tcpHdr;
+  GetPacket ()->PeekHeader (tcpHdr);
+  return tcpHdr.GetSourcePort ();
 }
 
-uint16_t 
+uint16_t
 Ipv4QueueDiscItem::TcpDestinationPort (void)
 {
- TcpHeader tcpHdr;
- GetPacket ()->PeekHeader (tcpHdr);
- return tcpHdr.GetDestinationPort ();
+  TcpHeader tcpHdr;
+  GetPacket ()->PeekHeader (tcpHdr);
+  return tcpHdr.GetDestinationPort ();
 }
 
+TcpOptionSack::SackList
+Ipv4QueueDiscItem::TcpGetSackList (void)
+{
+  TcpHeader tcpHdr;
+  GetPacket ()->PeekHeader (tcpHdr);
+  Ptr<const TcpOptionSack> s = DynamicCast<const TcpOptionSack> (tcpHdr.GetOption (TcpOption::SACK));
+  TcpOptionSack::SackList list = s->GetSackList ();
+  return list;
+}
+
+void
+Ipv4QueueDiscItem::TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr)
+{
+  TcpHeader tcpHdr;
+  GetPacket ()->PeekHeader (tcpHdr);
+  Ptr<const TcpOptionTS> ts = DynamicCast<const TcpOptionTS> (tcpHdr.GetOption (TcpOption::TS));
+  tstamp = ts->GetTimestamp ();
+  tsecr = ts->GetEcho ();
+}
 
 } // namespace ns3

@@ -22,6 +22,10 @@
 #include "ns3/packet.h"
 #include "ns3/queue-item.h"
 #include "ipv4-header.h"
+#include "tcp-option-winscale.h"
+#include "tcp-option-ts.h"
+#include "tcp-option-sack-permitted.h"
+#include "tcp-option-sack.h"
 
 namespace ns3 {
 
@@ -100,6 +104,10 @@ public:
   virtual uint16_t TcpSourcePort (void);
   
   virtual uint16_t TcpDestinationPort (void);
+  
+  virtual TcpOptionSack::SackList TcpGetSackList (void);
+  
+  virtual void TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr);
 
 private:
   /**
