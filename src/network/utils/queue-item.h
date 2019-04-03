@@ -105,6 +105,10 @@ public:
    * \param [in] item The queue item.
    */
   typedef void (* TracedCallback) (Ptr<const QueueItem> item);
+  
+  virtual uint16_t TcpSourcePort (void);
+  
+  virtual uint16_t TcpDestinationPort (void);
 
 private:
   /**

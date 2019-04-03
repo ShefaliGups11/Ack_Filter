@@ -187,4 +187,21 @@ Ipv4QueueDiscItem::Hash (uint32_t perturbation) const
   return hash;
 }
 
+uint16_t 
+Ipv4QueueDiscItem::TcpSourcePort (void)
+{
+ TcpHeader tcpHdr;
+ GetPacket ()->PeekHeader (tcpHdr);
+ return tcpHdr.GetSourcePort ();
+}
+
+uint16_t 
+Ipv4QueueDiscItem::TcpDestinationPort (void)
+{
+ TcpHeader tcpHdr;
+ GetPacket ()->PeekHeader (tcpHdr);
+ return tcpHdr.GetDestinationPort ();
+}
+
+
 } // namespace ns3

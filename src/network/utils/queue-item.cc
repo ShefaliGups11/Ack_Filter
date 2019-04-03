@@ -80,6 +80,17 @@ std::ostream & operator << (std::ostream &os, const QueueItem &item)
   return os;
 }
 
+uint16_t 
+QueueItem::TcpSourcePort (void)
+{
+return 0;
+}
+
+uint16_t
+QueueItem::TcpDestinationPort (void)
+{
+return 0;
+}
 
 QueueDiscItem::QueueDiscItem (Ptr<Packet> p, const Address& addr, uint16_t protocol)
   : QueueItem (p),
@@ -153,5 +164,6 @@ QueueDiscItem::Hash (uint32_t perturbation) const
   NS_LOG_WARN ("The Hash method should be redefined by subclasses");
   return 0;
 }
+
 
 } // namespace ns3

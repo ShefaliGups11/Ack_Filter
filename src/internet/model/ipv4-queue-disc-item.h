@@ -96,6 +96,10 @@ public:
    * \return the hash of the packet's 5-tuple
    */
   virtual uint32_t Hash (uint32_t perturbation) const;
+  
+  virtual uint16_t TcpSourcePort (void);
+  
+  virtual uint16_t TcpDestinationPort (void);
 
 private:
   /**
