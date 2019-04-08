@@ -99,10 +99,26 @@ QueueItem::TcpGetSackList (void)
   return sack;
 }
 
-void
+bool
 QueueItem::TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr)
 {
+ return false;
+}
 
+uint8_t
+QueueItem::GetL4Protocol (void)
+{
+ return 0;
+}
+
+void 
+QueueItem::GetSourceL3address (Ipv4Address &src)
+{
+}
+
+void 
+QueueItem::GetDestL3address (Ipv4Address &Dest)
+{
 }
 
 QueueDiscItem::QueueDiscItem (Ptr<Packet> p, const Address& addr, uint16_t protocol)

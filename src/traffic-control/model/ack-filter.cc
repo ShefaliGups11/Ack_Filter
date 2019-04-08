@@ -36,6 +36,9 @@ void
 AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
 {
   Ptr<Queue<QueueDiscItem> > queue =  Qu->GetInternalQueue (0);
+  bool hastimestamp;
+  uint32_t tstamp, tsecr;
+  Ipv4Address src1,src2,dst1,dst2;
 
   // No other possible ACKs to filter
   if (*(queue->Tail ()) == *(queue->Head ()))
@@ -43,11 +46,13 @@ AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
       return;
     }
   Ptr<QueueDiscItem> tail = *(queue->Tail ());
-  if (tail->GetProtocol () != 6)
+  if (tail->GetL4Protocol () != 6)
     {
       return;
     }
 
+  hastimestamp = tail->TcpGetTimestamp (tstamp,tsecr);
+  std::cout<<hastimestamp;
   //the 'triggering' packet need only have the ACK flag set.
   //also check that SYN is not set, as there won't be any previous ACKs.
   uint8_t flags;
@@ -57,11 +62,20 @@ AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
       return;
     }
   auto prev = queue->Head ();
+
+  //Triggered ack is at tail of the queue we have already returned if it is the only
+  //packet in the flow. Loop through the rest of the queue looking for pure ack
+  //with the same 5-tuple as the triggered one
   for (auto check = queue->Head (); check != queue->Tail (); prev = check,check++)
     {
-      if ((*check)->GetProtocol () != 6)
+      if ((*check)->GetL4Protocol () != 6 || ((*check)->TcpSourcePort () != tail->TcpSourcePort()) || ((*check)->TcpDestinationPort () != tail->TcpDestinationPort()))
         {
           continue;
+          (*check)->GetSourceL3address(src1);
+           tail->GetSourceL3address (src2);
+           (*check)->GetDestL3address(dst1);
+            tail->GetDestL3address (dst2);
+
         }
       Ptr<QueueDiscItem> item = *check;
       SequenceNumber32 abc = (*check)->GetxyzHeader();

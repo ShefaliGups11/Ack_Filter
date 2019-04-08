@@ -104,7 +104,7 @@ public:
    *
    * \param [in] item The queue item.
    */
-  typedef void (* TracedCallback) (Ptr<const QueueItem> item);
+  typedef void (* TracedCallback) (Ptr<const QueueItem> item);  
   
   virtual uint16_t TcpSourcePort (void);
   
@@ -115,7 +115,10 @@ public:
   typedef std::list<SackBlock> SackList;                           //!< SACK list definition
   
   virtual SackList TcpGetSackList (void);
-  virtual void TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr);
+  virtual bool TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr);
+  virtual uint8_t GetL4Protocol (void);
+  virtual void GetSourceL3address (Ipv4Address &src);
+  virtual void GetDestL3address (Ipv4Address &Dest);
 
 private:
   /**

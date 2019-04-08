@@ -107,7 +107,12 @@ public:
   
   virtual TcpOptionSack::SackList TcpGetSackList (void);
   
-  virtual void TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr);
+  virtual bool TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr);
+
+  virtual uint8_t GetL4Protocol (void);
+
+  virtual void GetSourceL3address (Ipv4Address &src);
+  virtual void GetDestL3address (Ipv4Address &Dest);
 
 private:
   /**

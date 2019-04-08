@@ -213,14 +213,39 @@ Ipv4QueueDiscItem::TcpGetSackList (void)
   return list;
 }
 
-void
+bool
 Ipv4QueueDiscItem::TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr)
 {
   TcpHeader tcpHdr;
   GetPacket ()->PeekHeader (tcpHdr);
+  if(tcpHdr.HasOption (TcpOption::TS))
+{
   Ptr<const TcpOptionTS> ts = DynamicCast<const TcpOptionTS> (tcpHdr.GetOption (TcpOption::TS));
   tstamp = ts->GetTimestamp ();
   tsecr = ts->GetEcho ();
+  return true;
+}
+else
+return false;
+}
+
+uint8_t
+Ipv4QueueDiscItem::GetL4Protocol (void)
+{
+ uint8_t prot = m_header.GetProtocol ();
+ return prot;
+}
+
+void
+Ipv4QueueDiscItem::GetSourceL3address (Ipv4Address &src)
+{
+  src = m_header.GetSource ();
+}
+
+void
+Ipv4QueueDiscItem::GetDestL3address (Ipv4Address &Dest)
+{
+  Dest = m_header.GetDestination ();
 }
 
 } // namespace ns3
