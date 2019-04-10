@@ -121,6 +121,12 @@ QueueItem::GetDestL3address (Ipv4Address &Dest)
 {
 }
 
+bool
+QueueItem::HasTcpOption (uint8_t kind)
+{
+ return false;
+}
+
 QueueDiscItem::QueueDiscItem (Ptr<Packet> p, const Address& addr, uint16_t protocol)
   : QueueItem (p),
     m_address (addr),

@@ -32,6 +32,12 @@ AckFilter::~AckFilter ()
 
 }
 
+bool
+AckFilter::AckFilterMayDrop (uint32_t tstamp,uint32_t tsecr)
+{
+
+}
+
 void
 AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
 {

@@ -113,6 +113,7 @@ public:
 
   virtual void GetSourceL3address (Ipv4Address &src);
   virtual void GetDestL3address (Ipv4Address &Dest);
+  virtual bool HasTcpOption (uint8_t kind);
 
 private:
   /**

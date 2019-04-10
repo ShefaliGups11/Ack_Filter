@@ -248,4 +248,11 @@ Ipv4QueueDiscItem::GetDestL3address (Ipv4Address &Dest)
   Dest = m_header.GetDestination ();
 }
 
+bool
+Ipv4QueueDiscItem::HasTcpOption (uint8_t kind)
+{
+  TcpHeader tcpHdr;
+  GetPacket ()->PeekHeader (tcpHdr);
+  return tcpHdr.HasOption (kind);
+}
 } // namespace ns3
