@@ -32,10 +32,31 @@ AckFilter::~AckFilter ()
 
 }
 
-bool
-AckFilter::AckFilterMayDrop (uint32_t tstamp,uint32_t tsecr)
+int 
+AckFilter::AckFilterSackCompare(Ptr<QueueDiscItem> item_a, Ptr<QueueDiscItem> item_b)
 {
+return 1;
+}
 
+bool
+AckFilter::AckFilterMayDrop (Ptr<QueueDiscItem> item, uint32_t tstamp,uint32_t tsecr)
+{
+  uint8_t flags;
+  if((((item->GetUint8Value (QueueItem::TCP_FLAGS,flags)) & uint32_t(0x0F3F0000)) != TcpHeader::ACK) || item->HasTcpOption(TcpOption::SACKPERMITTED) || item->HasTcpOption(TcpOption::WINSCALE) || item->HasTcpOption(TcpOption::UNKNOWN))
+     { 
+     return false;
+     }
+  else if(item->HasTcpOption(TcpOption::TS))
+  {
+  uint32_t tstamp_check,tsecr_check;
+  item->TcpGetTimestamp (tstamp_check,tsecr_check);
+  if((tstamp_check < tstamp) || (tsecr_check < tsecr))
+     return false;
+     else
+     return true;
+  }
+  else
+      return true;
 }
 
 void

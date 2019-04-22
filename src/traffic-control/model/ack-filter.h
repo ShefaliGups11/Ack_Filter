@@ -32,7 +32,8 @@ public:
 
   virtual ~AckFilter ();
   virtual void AckFilterMain (Ptr<QueueDisc> queue);
-
+  virtual bool AckFilterMayDrop (Ptr<QueueDiscItem> item, uint32_t tstamp,uint32_t tsecr);
+  virtual int AckFilterSackCompare (Ptr<QueueDiscItem> item_a, Ptr<QueueDiscItem> item_b);
 };
 
 }
