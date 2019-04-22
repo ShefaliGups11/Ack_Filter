@@ -136,7 +136,9 @@ AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
   bool hastimestamp;
   uint32_t tstamp, tsecr;
   Ipv4Address src1,src2,dst1,dst2;
-
+  Ptr<QueueDiscItem> elig_ack = NULL, elig_ack_prev= NULL;
+  uint32_t elig_flags=0;
+  int num_found=0;
   // No other possible ACKs to filter
   if (*(queue->Tail ()) == *(queue->Head ()))
     {
@@ -178,6 +180,76 @@ AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
       SequenceNumber32 abc = (*check)->GetAckSeqHeader ();
       std::cout << abc;
 
-    }
+/* Check TCP options and flags, don't drop ACKs with segment
+		 * data, and don't drop ACKs with a higher cumulative ACK
+		 * counter than the triggering packet. Check ACK seqno here to
+		 * avoid parsing SACK options of packets we are going to exclude
+		 * anyway.
+		 */
+if (!AckFilterMayDrop ( *check,tstamp,tsecr) ||
+		    (*check)->GetAckSeqHeader ()> tail->GetAckSeqHeader ())
+			continue;
+
+		/* Check SACK options. The triggering packet must SACK more data
+		 * than the ACK under consideration, or SACK the same range but
+		 * have a larger cumulative ACK counter. The latter is a
+		 * pathological case, but is contained in the following check
+		 * anyway, just to be safe.
+		 */
+int sack_comp = AckFilterSackCompare(*check, tail);
+
+		if (sack_comp < 0 ||
+		    (*check)->GetAckSeqHeader () == tail->GetAckSeqHeader ()) &&
+		     sack_comp == 0))
+			continue;
+
+		/* At this point we have found an eligible pure ACK to drop; if
+		 * we are in aggressive mode, we are done. Otherwise, keep
+		 * searching unless this is the second eligible ACK we
+		 * found.
+		 *
+		 * Since we want to drop ACK closest to the head of the queue,
+		 * save the first eligible ACK we find, even if we need to loop
+		 * again.
+		 */
+		if (!elig_ack) {
+			elig_ack = check;
+			elig_ack_prev = prev;
+			uint8_t flag_check;
+      (*check)->GetUint8Value (QueueItem::TCP_FLAGS,flag_check);
+      elig_flags = (flag_check & (TcpHeader::ECE | TcpHeader::CWR));
+		}
+
+		if (num_found++ > 0)
+			goto found;
+	}
+
+	/* We made it through the queue without finding two eligible ACKs . If
+	 * we found a single eligible ACK we can drop it in aggressive mode if
+	 * we can guarantee that this does not interfere with ECN flag
+	 * information. We ensure this by dropping it only if the enqueued
+	 * packet is consecutive with the eligible ACK, and their flags match.
+	 */
+	 uint8_t flag_tail;
+      (tail)->GetUint8Value (QueueItem::TCP_FLAGS,flag_check);
+      
+	if (elig_ack &&  elig_ack->next == skb &&
+	    (elig_flags == (tcp_flag_word(tcph) &
+			    (TCP_FLAG_ECE | TCP_FLAG_CWR))))
+		goto found;
+
+	return NULL;
+
+found:
+	if (elig_ack_prev)
+		elig_ack_prev->next = elig_ack->next;
+	else
+		flow->head = elig_ack->next;
+
+	skb_mark_not_on_list(elig_ack);
+
+	return elig_ack;
+}
+
 }
 }
