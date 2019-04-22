@@ -37,7 +37,8 @@ namespace ns3 {
  * Header and payload are kept separate to allow the queue disc to manipulate
  * the header, which is added to the packet when the packet is dequeued.
  */
-class Ipv4QueueDiscItem : public QueueDiscItem {
+class Ipv4QueueDiscItem : public QueueDiscItem
+{
 public:
   /**
    * \brief Create an IPv4 queue disc item containing an IPv4 packet.
@@ -64,7 +65,7 @@ public:
    * \brief Add the header to the packet
    */
 
-  SequenceNumber32 GetxyzHeader (void);  
+  SequenceNumber32 GetAckSeqHeader (void);
 
   virtual void AddHeader (void);
 
@@ -99,14 +100,17 @@ public:
    * \param perturbation hash perturbation value
    * \return the hash of the packet's 5-tuple
    */
+  typedef std::pair<SequenceNumber32, SequenceNumber32> SackBlock; //!< SACK block definition
+  typedef std::list<SackBlock> SackList;                           //!< SACK list definition
+
   virtual uint32_t Hash (uint32_t perturbation) const;
-  
+
   virtual uint16_t TcpSourcePort (void);
-  
+
   virtual uint16_t TcpDestinationPort (void);
-  
-  virtual TcpOptionSack::SackList TcpGetSackList (void);
-  
+
+  virtual SackList TcpGetSackList (void);
+
   virtual bool TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr);
 
   virtual uint8_t GetL4Protocol (void);

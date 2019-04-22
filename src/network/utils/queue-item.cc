@@ -55,7 +55,7 @@ QueueItem::GetSize (void) const
 }
 
 SequenceNumber32
-QueueItem::GetxyzHeader (void)
+QueueItem::GetAckSeqHeader (void)
 {
   return SequenceNumber32 (0);
 }
@@ -102,21 +102,21 @@ QueueItem::TcpGetSackList (void)
 bool
 QueueItem::TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr)
 {
- return false;
+  return false;
 }
 
 uint8_t
 QueueItem::GetL4Protocol (void)
 {
- return 0;
+  return 0;
 }
 
-void 
+void
 QueueItem::GetSourceL3address (Ipv4Address &src)
 {
 }
 
-void 
+void
 QueueItem::GetDestL3address (Ipv4Address &Dest)
 {
 }
@@ -124,7 +124,7 @@ QueueItem::GetDestL3address (Ipv4Address &Dest)
 bool
 QueueItem::HasTcpOption (uint8_t kind)
 {
- return false;
+  return false;
 }
 
 QueueDiscItem::QueueDiscItem (Ptr<Packet> p, const Address& addr, uint16_t protocol)

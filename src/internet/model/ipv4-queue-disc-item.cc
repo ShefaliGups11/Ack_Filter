@@ -58,7 +58,7 @@ Ipv4QueueDiscItem::GetHeader (void) const
 }
 
 SequenceNumber32
-Ipv4QueueDiscItem::GetxyzHeader (void)
+Ipv4QueueDiscItem::GetAckSeqHeader (void)
 {
   TcpHeader tcpHdr;
   GetPacket ()->PeekHeader (tcpHdr);
@@ -203,7 +203,7 @@ Ipv4QueueDiscItem::TcpDestinationPort (void)
   return tcpHdr.GetDestinationPort ();
 }
 
-TcpOptionSack::SackList
+Ipv4QueueDiscItem::SackList
 Ipv4QueueDiscItem::TcpGetSackList (void)
 {
   TcpHeader tcpHdr;
@@ -218,22 +218,24 @@ Ipv4QueueDiscItem::TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr)
 {
   TcpHeader tcpHdr;
   GetPacket ()->PeekHeader (tcpHdr);
-  if(tcpHdr.HasOption (TcpOption::TS))
-{
-  Ptr<const TcpOptionTS> ts = DynamicCast<const TcpOptionTS> (tcpHdr.GetOption (TcpOption::TS));
-  tstamp = ts->GetTimestamp ();
-  tsecr = ts->GetEcho ();
-  return true;
-}
-else
-return false;
+  if (tcpHdr.HasOption (TcpOption::TS))
+    {
+      Ptr<const TcpOptionTS> ts = DynamicCast<const TcpOptionTS> (tcpHdr.GetOption (TcpOption::TS));
+      tstamp = ts->GetTimestamp ();
+      tsecr = ts->GetEcho ();
+      return true;
+    }
+  else
+    {
+      return false;
+    }
 }
 
 uint8_t
 Ipv4QueueDiscItem::GetL4Protocol (void)
 {
- uint8_t prot = m_header.GetProtocol ();
- return prot;
+  uint8_t prot = m_header.GetProtocol ();
+  return prot;
 }
 
 void

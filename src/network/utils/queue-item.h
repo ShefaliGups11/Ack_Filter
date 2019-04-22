@@ -55,7 +55,7 @@ public:
    */
   QueueItem (Ptr<Packet> p);
 
-  virtual SequenceNumber32  GetxyzHeader (void);  
+  virtual SequenceNumber32  GetAckSeqHeader (void);
 
   virtual ~QueueItem ();
 
@@ -79,10 +79,10 @@ public:
    * \brief 1-byte fields of the packet whose value can be retrieved, if present
    */
   enum Uint8Values
-    {
-      IP_DSFIELD,
-      TCP_FLAGS
-    };
+  {
+    IP_DSFIELD,
+    TCP_FLAGS
+  };
 
   /**
    * \brief Retrieve the value of a given field from the packet, if present
@@ -104,16 +104,16 @@ public:
    *
    * \param [in] item The queue item.
    */
-  typedef void (* TracedCallback) (Ptr<const QueueItem> item);  
-  
+  typedef void (*TracedCallback)(Ptr<const QueueItem> item);
+
   virtual uint16_t TcpSourcePort (void);
-  
+
   virtual uint16_t TcpDestinationPort (void);
-  
-  
+
+
   typedef std::pair<SequenceNumber32, SequenceNumber32> SackBlock; //!< SACK block definition
   typedef std::list<SackBlock> SackList;                           //!< SACK list definition
-  
+
   virtual SackList TcpGetSackList (void);
   virtual bool TcpGetTimestamp (uint32_t &tstamp,uint32_t &tsecr);
   virtual uint8_t GetL4Protocol (void);
@@ -166,7 +166,8 @@ std::ostream& operator<< (std::ostream& os, const QueueItem &item);
  * to additionally store the destination MAC address, the
  * L3 protocol number and the transmission queue index,
  */
-class QueueDiscItem : public QueueItem {
+class QueueDiscItem : public QueueItem
+{
 public:
   /**
    * \brief Create a queue disc item.
