@@ -5,6 +5,7 @@
 #include "ns3/header.h"
 #include "ns3/ipv4-header.h"
 #include "ns3/tcp-header.h"
+#include "queue-disc.h"
 
 namespace ns3 {
 
@@ -24,16 +25,16 @@ TypeId AckFilter::GetTypeId (void)
 
 AckFilter::AckFilter ()
 {
-
+  NS_LOG_FUNCTION (this);
 }
 
 AckFilter::~AckFilter ()
 {
-
+  NS_LOG_FUNCTION (this);
 }
 
 int
-AckFilter::AckFilterSackCompare (Ptr<QueueDiscItem> item_a, Ptr<QueueDiscItem> item_b)
+AckFilter::AckFilterSackCompare (Ptr<QueueDiscItem> item_a, Ptr<QueueDiscItem> item_b) const
 {
   if (item_a->HasTcpOption (TcpOption::SACK) && !(item_b->HasTcpOption (TcpOption::SACK)))
     {
@@ -103,7 +104,7 @@ AckFilter::AckFilterSackCompare (Ptr<QueueDiscItem> item_a, Ptr<QueueDiscItem> i
 
 
 bool
-AckFilter::AckFilterMayDrop (Ptr<QueueDiscItem> item, uint32_t tstamp,uint32_t tsecr)
+AckFilter::AckFilterMayDrop (Ptr<QueueDiscItem> item, uint32_t tstamp,uint32_t tsecr) const
 {
   uint8_t flags;
   if ((((item->GetUint8Value (QueueItem::TCP_FLAGS,flags)) & uint32_t (0x0F3F0000)) != TcpHeader::ACK) || item->HasTcpOption (TcpOption::SACKPERMITTED) || item->HasTcpOption (TcpOption::WINSCALE) || item->HasTcpOption (TcpOption::UNKNOWN))
@@ -130,9 +131,9 @@ AckFilter::AckFilterMayDrop (Ptr<QueueDiscItem> item, uint32_t tstamp,uint32_t t
 }
 
 void
-AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
+AckFilter::AckFilterMain (Ptr<Queue<QueueDiscItem>> Qu) const
 {
-  Ptr<Queue<QueueDiscItem> > queue =  Qu->GetInternalQueue (0);
+  Ptr<Queue<QueueDiscItem> > queue =  Qu;
   bool hastimestamp;
   uint32_t tstamp, tsecr;
   Ipv4Address src1,src2,dst1,dst2;
@@ -142,11 +143,17 @@ AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
   // No other possible ACKs to filter
   if (*(queue->Tail ()) == *(queue->Head ()))
     {
+      std::cout<<"here"<<std::endl;
       return;
     }
+    std::cout<<*(queue->Tail ())<<"  "<<(*(queue->Head ()))->GetL4Protocol ()<<std::endl;
   Ptr<QueueDiscItem> tail = *(queue->Tail ());
+  std::cout<<"here"<<std::endl;
+  std::cout<<tail->GetL4Protocol ()<<std::endl;
+   
   if (tail->GetL4Protocol () != 6)
     {
+      std::cout<<tail->GetL4Protocol ()<<std::endl;
       return;
     }
 
@@ -181,75 +188,73 @@ AckFilter::AckFilterMain (Ptr<QueueDisc> Qu)
       std::cout << abc;
 
 /* Check TCP options and flags, don't drop ACKs with segment
-		 * data, and don't drop ACKs with a higher cumulative ACK
-		 * counter than the triggering packet. Check ACK seqno here to
-		 * avoid parsing SACK options of packets we are going to exclude
-		 * anyway.
-		 */
+   * data, and don't drop ACKs with a higher cumulative ACK
+   * counter than the triggering packet. Check ACK seqno here to
+   * avoid parsing SACK options of packets we are going to exclude
+   * anyway.
+   */
 if (!AckFilterMayDrop ( *check,tstamp,tsecr) ||
-		    (*check)->GetAckSeqHeader ()> tail->GetAckSeqHeader ())
-			continue;
+      (*check)->GetAckSeqHeader ()> tail->GetAckSeqHeader ())
+   continue;
 
-		/* Check SACK options. The triggering packet must SACK more data
-		 * than the ACK under consideration, or SACK the same range but
-		 * have a larger cumulative ACK counter. The latter is a
-		 * pathological case, but is contained in the following check
-		 * anyway, just to be safe.
-		 */
+  /* Check SACK options. The triggering packet must SACK more data
+   * than the ACK under consideration, or SACK the same range but
+   * have a larger cumulative ACK counter. The latter is a
+   * pathological case, but is contained in the following check
+   * anyway, just to be safe.
+   */
 int sack_comp = AckFilterSackCompare(*check, tail);
 
-		if (sack_comp < 0 ||
-		    (*check)->GetAckSeqHeader () == tail->GetAckSeqHeader ()) &&
-		     sack_comp == 0))
-			continue;
+  if ((sack_comp < 0 ||
+      (*check)->GetAckSeqHeader () == tail->GetAckSeqHeader ()) &&
+       (sack_comp == 0))
+   continue;
 
-		/* At this point we have found an eligible pure ACK to drop; if
-		 * we are in aggressive mode, we are done. Otherwise, keep
-		 * searching unless this is the second eligible ACK we
-		 * found.
-		 *
-		 * Since we want to drop ACK closest to the head of the queue,
-		 * save the first eligible ACK we find, even if we need to loop
-		 * again.
-		 */
-		if (!elig_ack) {
-			elig_ack = check;
-			elig_ack_prev = prev;
-			uint8_t flag_check;
+  /* At this point we have found an eligible pure ACK to drop; if
+   * we are in aggressive mode, we are done. Otherwise, keep
+   * searching unless this is the second eligible ACK we
+   * found.
+   *
+   * Since we want to drop ACK closest to the head of the queue,
+   * save the first eligible ACK we find, even if we need to loop
+   * again.
+   */
+  if (!elig_ack) {
+   elig_ack = *check;
+   elig_ack_prev = *prev;
+   uint8_t flag_check;
       (*check)->GetUint8Value (QueueItem::TCP_FLAGS,flag_check);
       elig_flags = (flag_check & (TcpHeader::ECE | TcpHeader::CWR));
-		}
+  }
 
-		if (num_found++ > 0)
-			goto found;
-	}
+  if (num_found++ > 0)
+   goto found;
+ }
 
-	/* We made it through the queue without finding two eligible ACKs . If
-	 * we found a single eligible ACK we can drop it in aggressive mode if
-	 * we can guarantee that this does not interfere with ECN flag
-	 * information. We ensure this by dropping it only if the enqueued
-	 * packet is consecutive with the eligible ACK, and their flags match.
-	 */
-	 uint8_t flag_tail;
-      (tail)->GetUint8Value (QueueItem::TCP_FLAGS,flag_check);
+ /* We made it through the queue without finding two eligible ACKs . If
+  * we found a single eligible ACK we can drop it in aggressive mode if
+  * we can guarantee that this does not interfere with ECN flag
+  * information. We ensure this by dropping it only if the enqueued
+  * packet is consecutive with the eligible ACK, and their flags match.
+  */
+  uint8_t flag_tail;
+      (tail)->GetUint8Value (QueueItem::TCP_FLAGS,flag_tail);
       
-	if (elig_ack &&  elig_ack->next == skb &&
-	    (elig_flags == (tcp_flag_word(tcph) &
-			    (TCP_FLAG_ECE | TCP_FLAG_CWR))))
-		goto found;
+  if (elig_ack && (elig_flags == (flag_tail & (TcpHeader::ECE | TcpHeader::CWR))))
+     goto found;
 
-	return NULL;
+ //return NULL;
 
 found:
-	if (elig_ack_prev)
-		elig_ack_prev->next = elig_ack->next;
-	else
-		flow->head = elig_ack->next;
+ if (elig_ack_prev)
+  elig_ack_prev = elig_ack;
+ //else
+  //flow->head = elig_ack->next;
 
-	skb_mark_not_on_list(elig_ack);
 
-	return elig_ack;
+ //skb_mark_not_on_list(elig_ack);
+
+ //return elig_ack;
 }
 
-}
 }

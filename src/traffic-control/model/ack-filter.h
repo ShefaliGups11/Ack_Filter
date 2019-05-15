@@ -3,6 +3,7 @@
 #include <map>
 #include "ns3/pointer.h"
 #include "ns3/queue-disc.h"
+#include "queue-disc.h"
 
 namespace ns3 {
 
@@ -31,9 +32,9 @@ public:
   AckFilter ();
 
   virtual ~AckFilter ();
-  virtual void AckFilterMain (Ptr<QueueDisc> queue);
-  virtual bool AckFilterMayDrop (Ptr<QueueDiscItem> item, uint32_t tstamp,uint32_t tsecr);
-  virtual int AckFilterSackCompare (Ptr<QueueDiscItem> item_a, Ptr<QueueDiscItem> item_b);
+  virtual void AckFilterMain (Ptr<Queue<QueueDiscItem>> queue) const;
+  virtual bool AckFilterMayDrop (Ptr<QueueDiscItem> item, uint32_t tstamp,uint32_t tsecr) const;
+  virtual int AckFilterSackCompare (Ptr<QueueDiscItem> item_a, Ptr<QueueDiscItem> item_b) const;
 };
 
 }

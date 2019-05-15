@@ -22,6 +22,7 @@
 #include "fifo-queue-disc.h"
 #include "ns3/object-factory.h"
 #include "ns3/drop-tail-queue.h"
+#include "ack-filter.h"
 
 namespace ns3 {
 
@@ -69,7 +70,9 @@ FifoQueueDisc::DoEnqueue (Ptr<QueueDiscItem> item)
     }
 
   bool retval = GetInternalQueue (0)->Enqueue (item);
-
+  Ptr<Queue<QueueDiscItem>> queue = GetInternalQueue (0);
+  AckFilter ack;
+  ack.AckFilterMain(queue);
   // If Queue::Enqueue fails, QueueDisc::DropBeforeEnqueue is called by the
   // internal queue because QueueDisc::AddInternalQueue sets the trace callback
 
@@ -101,7 +104,7 @@ FifoQueueDisc::DoPeek (void)
   NS_LOG_FUNCTION (this);
 
   Ptr<const QueueDiscItem> item = GetInternalQueue (0)->Peek ();
-
+  
   if (!item)
     {
       NS_LOG_LOGIC ("Queue empty");
